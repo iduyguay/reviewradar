@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>ReviewRadar / Customer feedback</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <aside>
+      <div class="masthead">
+        <a class="brand" href="#" aria-label="ReviewRadar home"
+          ><span class="brandmark">r.</span>ReviewRadar</a
+        >
+        <div class="mastheadright">
+          <div class="workspace">
+            <span class="avatar">B</span>
+            <div>Birch & Bloom<small>Local workspace</small></div>
+          </div>
+          <button id="settings" aria-label="Workspace settings">
+            Settings
+          </button>
+        </div>
+      </div>
+      <div class="navrow">
+        <nav>
+          <button data-view="overview" class="active">
+            <span>Report</span></button
+          ><button data-view="reviews">
+            <span>All reviews</span><b id="inboxcount">25</b></button
+          ><button data-view="actions">
+            <span>Actions</span><b id="actioncount">0</b>
+          </button>
+        </nav>
+        <span class="localnote"><i></i> Stored on this device</span>
+      </div>
+    </aside>
+    <main>
+      <header><span id="breadcrumb">Report</span></header>
+      <section id="content"></section>
+      <footer>
+        <span>ReviewRadar</span><span>Reviews stay in your browser.</span>
+      </footer>
+    </main>
+    <dialog id="upload">
+      <form id="uploadform">
+        <div class="dialogtop">
+          <span class="eyebrow">Import reviews</span
+          ><button type="button" class="close">×</button>
+        </div>
+        <h2>Add customer reviews</h2>
+        <p>
+          Upload a CSV or TXT file, or paste your reviews below. One review per
+          line. CSV files should have a review or text column; rating is
+          optional.
+        </p>
+        <label class="drop"
+          >↑<strong>Choose a review file</strong
+          ><span>CSV or TXT · up to 500 reviews · 2 MB</span
+          ><input
+            id="file"
+            type="file"
+            accept=".csv,.txt,text/plain,text/csv" /></label
+        ><label class="fieldlabel" for="reviewtext">Or paste your reviews</label
+        ><textarea
+          id="reviewtext"
+          rows="6"
+          placeholder="One customer review per line"
+        ></textarea>
+        <p class="importnotice">
+          A new import replaces this report and its action list. Download your
+          current report first if you need a copy.
+        </p>
+        <p id="uploaderror" role="alert"></p>
+        <div class="modelnote">
+          Analysis runs on your device. The first run needs an internet
+          connection to download the model.
+        </div>
+        <button class="primary" id="analyzebtn">Analyze reviews</button>
+        <p id="progress" role="status"></p>
+      </form>
+    </dialog>
+    <dialog id="detail"></dialog>
+    <div id="toast" role="status"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
