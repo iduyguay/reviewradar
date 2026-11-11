@@ -41,7 +41,7 @@ export function groupReviews(reviews, vectors, promptVectors, now = Date.now()) 
   for (const indices of clusters.filter((cluster) => cluster.length >= 2)) {
     const words = reviews[indices[0]].text
       .replace(/[^a-zA-Z ]/g, "")
-      .split(/\\s+/)
+      .split(/\s+/)
       .filter((word) => word.length > 4)
       .slice(0, 4)
       .join(" ");
