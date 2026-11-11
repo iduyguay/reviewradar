@@ -1,6 +1,7 @@
 import { themes, sampleTexts } from "./sample-data.js";
 import { parse } from "./review-import.js";
 import { analyze } from "./analysis.js";
+import { parseBackup, serializeBackup } from "./report-backup.js";
 
 const html = String.raw;
 const countLabel = (count, label) =>
@@ -398,6 +399,16 @@ function exportReport() {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+function downloadBackup() {
+  const url = URL.createObjectURL(
+    new Blob([serializeBackup(state)], { type: "application/json" }),
+  );
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reviewradar-backup.json";
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 document.addEventListener("click", (e) => {
   const b = e.target.closest("button");
   if (!b) return;
@@ -410,6 +421,8 @@ document.addEventListener("click", (e) => {
   }
   if (b.classList.contains("close")) b.closest("dialog").close();
   if (b.hasAttribute("data-export")) exportReport();
+  if (b.id === "downloadbackup") downloadBackup();
+  if (b.id === "choosebackup") $("#backupfile").click();
   if (b.dataset.add) {
     const g = state.groups.find((g) => g.id === b.dataset.add);
     if (!state.tasks.some((t) => t.id === g.id)) {
@@ -472,6 +485,15 @@ document.addEventListener("click", (e) => {
         Reviews and actions are saved on this device. Export a report to share
         them with your team.
       </p>
+      <div class="backupactions">
+        <button class="secondary" id="downloadbackup">Download JSON backup</button>
+        <button class="secondary" id="choosebackup">Restore JSON backup</button>
+        <input id="backupfile" type="file" accept=".json,application/json" hidden />
+      </div>
+      <p id="backuperror" role="alert"></p>
+      <p class="footnote">
+        A restore replaces the reviews and actions saved in this browser.
+      </p>
       <button class="primary" id="savebusiness">Save changes</button>
     `;
     $("#detail").showModal();
@@ -483,7 +505,35 @@ document.addEventListener("click", (e) => {
     render();
   }
 });
-document.addEventListener("change", (e) => {
+document.addEventListener("change", async (e) => {
+  if (e.target.id === "backupfile") {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    try {
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("Choose a backup smaller than 5 MB.");
+      }
+      const restored = parseBackup(await file.text());
+      if (
+        !window.confirm(
+          "Restore this backup? It will replace the reviews and actions saved in this browser.",
+        )
+      ) {
+        return;
+      }
+      state = restored;
+      query = "";
+      view = "overview";
+      save();
+      $("#detail").close();
+      render();
+      toast("Backup restored.");
+    } catch (error) {
+      $("#backuperror").textContent =
+        error.message || "The backup could not be restored.";
+    }
+  }
   if (e.target.dataset.task) {
     state.tasks.find((t) => t.id === e.target.dataset.task).done =
       e.target.checked;
